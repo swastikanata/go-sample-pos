@@ -5,34 +5,42 @@ import (
 	"gorm.io/gorm"
 )
 
-type ProductRepository struct {
-	DB *gorm.DB
+type ProductRepository interface {
+	Create(product *models.Product) error
+	GetAll() ([]models.Product, error)
+	GetByID(id string) (*models.Product, error)
+	Update(id string, product *models.Product) error
+	Delete(id string) error
 }
 
-func NewProductRepository(db *gorm.DB) *ProductRepository {
-	return &ProductRepository{DB: db}
+type productRepositoryImpl struct {
+	db *gorm.DB
 }
 
-func (r *ProductRepository) CreateProduct(product *models.Product) error {
-	return r.DB.Create(product).Error
+func NewProductRepository(db *gorm.DB) ProductRepository {
+	return &productRepositoryImpl{db}
 }
 
-func (r *ProductRepository) GetAllProducts() ([]models.Product, error) {
+func (r *productRepositoryImpl) Create(product *models.Product) error {
+	return r.db.Create(product).Error
+}
+
+func (r *productRepositoryImpl) GetAll() ([]models.Product, error) {
 	var products []models.Product
-	err := r.DB.Find(&products).Error
+	err := r.db.Find(&products).Error
 	return products, err
 }
 
-func (r *ProductRepository) GetProductByID(id string) (*models.Product, error) {
+func (r *productRepositoryImpl) GetByID(id string) (*models.Product, error) {
 	var product models.Product
-	err := r.DB.First(&product, "product_id = ?", id).Error
+	err := r.db.First(&product, "product_id = ?", id).Error
 	return &product, err
 }
 
-func (r *ProductRepository) UpdateProduct(product *models.Product) error {
-	return r.DB.Save(product).Error
+func (r *productRepositoryImpl) Update(id string, product *models.Product) error {
+	return r.db.Model(&models.Product{}).Where("product_id = ?", id).Updates(product).Error
 }
 
-func (r *ProductRepository) DeleteProduct(id string) error {
-	return r.DB.Delete(&models.Product{}, "product_id = ?", id).Error
+func (r *productRepositoryImpl) Delete(id string) error {
+	return r.db.Delete(&models.Product{}, "product_id = ?", id).Error
 }

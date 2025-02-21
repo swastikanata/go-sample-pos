@@ -13,6 +13,20 @@ API berbasis Golang untuk mengelola produk menggunakan **Fiber**, **GORM**, dan 
 
 ---
 
+## 🚀Get Dependency
+```shell
+
+go get -u github.com/gofiber/fiber/v2
+go get -u gorm.io/gorm
+go get -u gorm.io/driver/mysql
+```
+
+## 🚀Update Dependency
+```shell
+
+go mod tidy
+```
+
 ## 📂 Struktur Direktori
 ```
 project-root/

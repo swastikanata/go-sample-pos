@@ -5,30 +5,37 @@ import (
 	"github.com/aronipurwanto/go-sample-pos/repositories"
 )
 
-type ProductService struct {
-	Repo *repositories.ProductRepository
+type ProductService interface {
+	CreateProduct(product *models.Product) error
+	GetAllProducts() ([]models.Product, error)
+	GetProductByID(id string) (*models.Product, error)
+	UpdateProduct(id string, product *models.Product) error
+	DeleteProduct(id string) error
 }
 
-func NewProductService(repo *repositories.ProductRepository) *ProductService {
-	return &ProductService{Repo: repo}
+type productServiceImpl struct {
+	Repo repositories.ProductRepository
 }
 
-func (s *ProductService) CreateProduct(product *models.Product) error {
-	return s.Repo.CreateProduct(product)
+func NewProductService(repo repositories.ProductRepository) ProductService {
+	return &productServiceImpl{repo}
+}
+func (s *productServiceImpl) CreateProduct(product *models.Product) error {
+	return s.Repo.Create(product)
 }
 
-func (s *ProductService) GetAllProducts() ([]models.Product, error) {
-	return s.Repo.GetAllProducts()
+func (s *productServiceImpl) GetAllProducts() ([]models.Product, error) {
+	return s.Repo.GetAll()
 }
 
-func (s *ProductService) GetProductByID(id string) (*models.Product, error) {
-	return s.Repo.GetProductByID(id)
+func (s *productServiceImpl) GetProductByID(id string) (*models.Product, error) {
+	return s.Repo.GetByID(id)
 }
 
-func (s *ProductService) UpdateProduct(product *models.Product) error {
-	return s.Repo.UpdateProduct(product)
+func (s *productServiceImpl) UpdateProduct(id string, product *models.Product) error {
+	return s.Repo.Update(id, product)
 }
 
-func (s *ProductService) DeleteProduct(id string) error {
-	return s.Repo.DeleteProduct(id)
+func (s *productServiceImpl) DeleteProduct(id string) error {
+	return s.Repo.Delete(id)
 }
