@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/aronipurwanto/go-sample-pos/controllers"
 	"github.com/aronipurwanto/go-sample-pos/database"
 	"github.com/aronipurwanto/go-sample-pos/repositories"
@@ -24,5 +25,8 @@ func main() {
 	routes.SetupRoutes(app, productController)
 
 	// Start server
-	app.Listen(":8080")
+	err := app.Listen(":8080")
+	if err != nil {
+		fmt.Println(err)
+	}
 }
