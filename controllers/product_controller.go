@@ -25,6 +25,20 @@ func (c *ProductController) CreateProduct(ctx *fiber.Ctx) error {
 	return ctx.Status(201).JSON(product)
 }
 
+func (c *ProductController) CreateMultipleProducts(ctx *fiber.Ctx) error {
+	var products []models.Product
+	if err := ctx.BodyParser(&products); err != nil {
+		return ctx.Status(400).JSON(fiber.Map{"error": "Invalid request"})
+	}
+
+	for _, product := range products {
+		if err := c.productService.CreateProduct(&product); err != nil {
+			return ctx.Status(500).JSON(fiber.Map{"error": err.Error()})
+		}
+	}
+	return ctx.Status(201).JSON(products)
+}
+
 func (c *ProductController) GetAllProducts(ctx *fiber.Ctx) error {
 	products, err := c.productService.GetAllProducts()
 	if err != nil {
