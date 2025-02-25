@@ -18,7 +18,7 @@ func SetupRoutes(
 
 	productGroup := app.Group("/products")
 	productGroup.Post("/", productController.CreateProduct)
-	productGroup.Post("/multiple", productController.CreateMultipleProducts)
+	productGroup.Post("/bulk", productController.CreateProductBulk)
 	productGroup.Get("/", productController.GetAllProducts)
 	productGroup.Get("/:id", productController.GetProductByID)
 	productGroup.Put("/:id", productController.UpdateProduct)

@@ -25,18 +25,49 @@ func (c *ProductController) CreateProduct(ctx *fiber.Ctx) error {
 	return ctx.Status(201).JSON(product)
 }
 
-func (c *ProductController) CreateMultipleProducts(ctx *fiber.Ctx) error {
+func (c *ProductController) CreateProductV2(ctx *fiber.Ctx) error {
 	var products []models.Product
 	if err := ctx.BodyParser(&products); err != nil {
 		return ctx.Status(400).JSON(fiber.Map{"error": "Invalid request"})
 	}
 
+	var productErrors []models.ProductError
 	for _, product := range products {
 		if err := c.productService.CreateProduct(&product); err != nil {
-			return ctx.Status(500).JSON(fiber.Map{"error": err.Error()})
+			productErrors = append(productErrors, models.ProductError{
+				Product: product,
+				Error:   err,
+			})
 		}
 	}
+
+	if len(productErrors) > 0 {
+		return ctx.Status(500).JSON(fiber.Map{"errors": productErrors})
+	}
+
 	return ctx.Status(201).JSON(products)
+}
+
+func (c *ProductController) CreateProductsBulk(ctx *fiber.Ctx) error {
+	var products []models.Product
+
+	// Parse JSON request
+	if err := ctx.BodyParser(&products); err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Invalid JSON format",
+		})
+	}
+
+	// Insert products
+	if err := c.productService.CreateProductBulk(&products); err != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "Failed to insert products",
+		})
+	}
+
+	return ctx.Status(fiber.StatusCreated).JSON(fiber.Map{
+		"message": "Products added successfully",
+	})
 }
 
 func (c *ProductController) GetAllProducts(ctx *fiber.Ctx) error {
